@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package mediameta.v1;
+
+option go_package = "github.com/AlexAnd012/mediameta/gen/go/mediameta/v1;mediametav1";
+
+//структура данных
+message Metadata {
+  string id = 1;
+  string filename = 2;
+  int64  size_bytes = 3;
+  string content_type = 4;
+  string owner_id = 5;
+  int64  created_at = 6;
+}
+
+//Клиент отдаёт локальный путь, а сервер читает данные с диска
+message CreateFromPathRequest {
+  string path = 1; // локальный путь на хосте (например C:/Users/1.jpg)
+  string owner_id = 2; // опционально
+}
+message CreateFromPathResponse { Metadata meta = 1; }
+
+//клиент сам передаёт готовые данные
+message CreateMetadataRequest {
+  string filename = 1;
+  int64  size_bytes = 2;
+  string content_type = 3;
+  string owner_id = 4;
+}
+message CreateMetadataResponse { Metadata meta = 1; }
+
+//Получаем по id.
+message GetMetadataRequest { string id = 1; }
+message GetMetadataResponse { Metadata meta = 1; }
+
+//Пагинация
+// repeated - массив.
+// page_token - строка
+message ListMetadataRequest {
+  int32  page_size  = 1;   // 1..100
+  string page_token = 2;   // "0", "20", ...
+}
+message ListMetadataResponse {
+  repeated Metadata items = 1;
+  string next_page_token = 2;
+}
+
+//Частичное обновление , пустое поле не меняем
+message UpdateMetadataRequest {
+  string id = 1;
+  string filename = 2;
+  string content_type = 3;
+}
+message UpdateMetadataResponse { Metadata meta = 1; }
+
+// Удаляем полностью из бд
+message DeleteMetadataRequest { string id = 1; }
+message DeleteMetadataResponse {}
+
+message HealthCheckRequest {}
+message HealthCheckResponse { string status = 1; }
+
+service MetadataService {
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+
+  rpc CreateMetadata(CreateMetadataRequest) returns (CreateMetadataResponse);
+  rpc CreateMetadataFromPath(CreateFromPathRequest) returns (CreateFromPathResponse);
+
+  rpc GetMetadata(GetMetadataRequest) returns (GetMetadataResponse);
+  rpc ListMetadata(ListMetadataRequest) returns (ListMetadataResponse);
+
+  rpc UpdateMetadata(UpdateMetadataRequest) returns (UpdateMetadataResponse);
+  rpc DeleteMetadata(DeleteMetadataRequest) returns (DeleteMetadataResponse);
+}
