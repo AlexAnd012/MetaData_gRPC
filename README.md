@@ -51,31 +51,31 @@ protoc-gen-go-grpc
 Docker (+ Docker Compose) — для Postgres
 
 ## Быстрый старт ##
-**1) Поднять Postgres в Docker**
-docker compose up -d db
-docker compose ps   
+**1) Поднять Postgres в Docker**  
+docker compose up -d db  
+docker compose ps     
 
 **2) Применить миграции**
-$cid = docker compose ps -q db
-Get-Content -Raw .\migrations\0001_init.sql | docker exec -i $cid psql -U mm -d mediameta
+$cid = docker compose ps -q db  
+Get-Content -Raw .\migrations\0001_init.sql | docker exec -i $cid psql -U mm -d mediameta  
 
 ## Схема ##
 
-CREATE TABLE IF NOT EXISTS metadata (
-  id           uuid    PRIMARY KEY,
-  filename     text    NOT NULL,
-  size_bytes   bigint  NOT NULL DEFAULT 0,
-  content_type text,
-  owner_id     text,
-  created_at   bigint  NOT NULL
-);
+CREATE TABLE IF NOT EXISTS metadata (  
+  id           uuid    PRIMARY KEY,  
+  filename     text    NOT NULL,  
+  size_bytes   bigint  NOT NULL DEFAULT 0,  
+  content_type text,  
+  owner_id     text,  
+  created_at   bigint  NOT NULL   
+);  
 
-## 3) Сгенерировать gRPC-код ##
-protoc -I proto `
-  --go_out=gen/go --go_opt=paths=source_relative `
-  --go-grpc_out=gen/go --go-grpc_opt=paths=source_relative `
-  proto/mediameta/v1/metadata.proto
+## 3) Сгенерировать gRPC-код ##  
+protoc -I proto `  
+  --go_out=gen/go --go_opt=paths=source_relative `  
+  --go-grpc_out=gen/go --go-grpc_opt=paths=source_relative `  
+  proto/mediameta/v1/metadata.proto  
 
-## 4) Запустить сервер ##
-$env:DB_DSN="postgres://mm:mm@localhost:5434/mediameta?sslmode=disable"
-go run .\cmd\server
+## 4) Запустить сервер ##  
+$env:DB_DSN="postgres://mm:mm@localhost:5434/mediameta?sslmode=disable"  
+go run .\cmd\server  
